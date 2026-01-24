@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
  <meta charset="UTF-8" />
@@ -514,7 +514,7 @@
  }
  
  // Initialize auto-resize when page loads
- document.addEventListener('DOMContentLoaded', setupAutoResize);
+ // We'll call setupAutoResize and the logo inlining on DOMContentLoaded below
  
  function populateCalendar() {
  const monthNumber = parseInt(document.getElementById('monthSelect').value);
@@ -837,17 +837,51 @@
  }
  }
  
- // Export calendar as Instagram post image
- async function exportCalendarAsImage() {
+ // Convert an external image to a data URL and replace the src so html2canvas can capture it.
+ // This is robust even if the remote server doesn't provide CORS headers.
+ async function inlineLogoAsDataURL() {
+   const img = document.getElementById('logoImg');
+   if (!img) return;
+
+   const src = img.getAttribute('src') || '';
+   // If already a data URL, nothing to do
+   if (src.startsWith('data:')) return;
+
+   try {
+     // Try to fetch the image as a blob. Use CORS mode; many hosts allow this.
+     const resp = await fetch(src, { mode: 'cors' });
+     if (!resp.ok) throw new Error('Image fetch failed: ' + resp.status);
+     const blob = await resp.blob();
+
+     // Convert blob => data URL
+     const reader = new FileReader();
+     const dataURL = await new Promise((resolve, reject) => {
+       reader.onerror = () => reject(reader.error);
+       reader.onloadend = () => resolve(reader.result);
+       reader.readAsDataURL(blob);
+     });
+
+     // Replace image src with data URL (now same-origin for canvas)
+     img.src = dataURL;
+   } catch (err) {
+     console.warn('Could not inline logo image (CORS fallback will be used if possible):', err);
+     // Nothing else to do; html2canvas may still capture it if server sends CORS headers.
+   }
+ }
+
+ // Export calendar as Instagram post image (updated to await logo inlining)
+ async function exportCalendarAsImage(evt) {
  const calendarContainer = document.querySelector('.calendar-container');
  
  try {
  // Show loading message
- const button = event.target;
- const originalText = button.innerHTML;
- button.innerHTML = '⏳ Generating...';
- button.disabled = true;
+ const button = evt ? evt.target : null;
+ const originalText = button ? button.innerHTML : '';
+ if (button) { button.innerHTML = '⏳ Generating...'; button.disabled = true; }
  
+ // Ensure the logo is inlined before render so html2canvas will draw it
+ await inlineLogoAsDataURL().catch(() => { /* continue anyway if inlining failed */ });
+
  // Configure html2canvas for Instagram post dimensions
  const canvas = await html2canvas(calendarContainer, {
  width: 1080,
@@ -855,7 +889,6 @@
  scale: 2, // Higher resolution
  backgroundColor: '#f4f3ee',
  useCORS: true,
- allowTaint: true,
  scrollX: 0,
  scrollY: 0
  });
@@ -871,17 +904,17 @@
  document.body.removeChild(link);
  
  // Reset button
- button.innerHTML = originalText;
- button.disabled = false;
+ if (button) { button.innerHTML = originalText; button.disabled = false; }
  
  } catch (error) {
  console.error('Export failed:', error);
  alert('Export failed. Please try again or use a screenshot instead.');
  
  // Reset button
- const button = event.target;
- button.innerHTML = '📸 Export for Instagram';
- button.disabled = false;
+ if (evt && evt.target) {
+ evt.target.innerHTML = '📸 Export for Instagram';
+ evt.target.disabled = false;
+ }
  }
  }
  
@@ -890,7 +923,7 @@
  const eventTitles = document.querySelectorAll('.event-title');
  if (eventTitles.length >= 4) {
  // Color the first few event titles as examples
- eventTitles[0].innerHTML = '<span class="text-red">Women\'s Book Club</span>';
+ eventTitles[0].innerHTML = '<span class="text-red">Women\\'s Book Club</span>';
  eventTitles[1].innerHTML = '<span class="text-orange">Guided Arabic Tafseer</span>';
  eventTitles[2].innerHTML = '<span class="text-green">Tafseer in Arabic</span>';
  eventTitles[3].innerHTML = '<span class="text-blue">Wonderful Wednesdays</span>';
@@ -939,7 +972,7 @@
  <button onclick="toggleExampleDots()" id="exampleDotsBtn" class="action-btn btn-example">
  🎨 EXAMPLES
  </button>
- <button onclick="exportCalendarAsImage()" class="action-btn" style="background: #28a745;">
+ <button onclick="exportCalendarAsImage(event)" class="action-btn" style="background: #28a745;">
  📸 Export for Instagram
  </button>
  </div>
@@ -997,7 +1030,6 @@
  <div class="control-group">
  <div class="text-controls">
  <h3>🎨 Text Colors</h3>
- 
  <div class="control-row">
  <select id="textColorInput" class="control-input">
  <option value="text-red">Red</option>
@@ -1011,200 +1043,150 @@
  <option value="text-brown">Brown</option>
  <option value="text-black">Black</option>
  <option value="text-gray">Gray</option>
- <option value="reset">🔄 Reset</option>
+ <option value="reset">Reset</option>
  </select>
+ <button onclick="applyTextColor()" class="action-btn btn-text">Apply Color</button>
+ <button onclick="resetAllTextColors()" class="action-btn btn-reset">Reset All</button>
  </div>
- 
+ <p class="help-text">Highlight text in event titles or details then choose a color and press "Apply Color".</p>
+ </div>
+ </div>
+
+ <!-- Additional helper controls -->
+ <div class="control-group">
+ <h3>Examples</h3>
  <div class="control-row">
- <button onclick="applyTextColor()" class="action-btn btn-text">
- 🖍️ Apply Selected
- </button>
- </div>
- 
- <div class="control-row">
- <button onclick="addExampleTextColors()" class="action-btn btn-example">
- 🎨 Examples
- </button>
- <button onclick="resetAllTextColors()" class="action-btn btn-reset">
- 🔄 Reset All
- </button>
- </div>
- 
- <div class="help-text">
- <strong>How to use:</strong> Highlight text, choose color, then click "Apply Selected"
+ <button onclick="addExampleTextColors()" class="action-btn btn-example">Add Example Text Colors</button>
  </div>
  </div>
  </div>
  
- <div class="help-text">
- <strong>💡 Tips:</strong><br>
- • Generate calendar first<br>
- • Edit events by clicking text<br>
- • Use commas for multiple dates: "1,5,12"<br>
- • Color text to highlight items
- </div>
- </div>
- 
- <!-- Main Content Area -->
+ <!-- Main content with calendar -->
  <div class="main-content">
- <div class="calendar-container">
- <div class="header">
- <div class="logo">
- <img src="https://vric.org/wp-content/uploads/2021/09/VRIC-Color-Circle-Logo.png" alt="VRIC Logo">
+   <div class="calendar-container" id="calendarContainer">
+     <div class="header">
+       <div class="logo">
+         <!-- Updated image element with id and crossorigin; this will be inlined before export -->
+         <img id="logoImg"
+              crossorigin="anonymous"
+              src="https://vric.org/wp-content/uploads/2021/09/VRIC-Color-Circle-Logo.png"
+              alt="VRIC logo" />
+       </div>
+       <div class="spacer"></div>
+       <div class="month-title" id="monthTitle">MONTH YEAR</div>
+     </div>
+
+     <div class="committee-title">VRIC Women's Committee</div>
+
+     <table class="calendar-grid" aria-hidden="false">
+       <thead>
+         <tr>
+           <th class="day-header">Sun</th>
+           <th class="day-header">Mon</th>
+           <th class="day-header">Tue</th>
+           <th class="day-header">Wed</th>
+           <th class="day-header">Thu</th>
+           <th class="day-header">Fri</th>
+           <th class="day-header">Sat</th>
+         </tr>
+       </thead>
+       <tbody>
+         <!-- Create 6 week rows (max) -> 6*7 = 42 cells -->
+         <tr>
+           <td class="calendar-cell"><span class="date-number"></span></td>
+           <td class="calendar-cell"><span class="date-number"></span></td>
+           <td class="calendar-cell"><span class="date-number"></span></td>
+           <td class="calendar-cell"><span class="date-number"></span></td>
+           <td class="calendar-cell"><span class="date-number"></span></td>
+           <td class="calendar-cell"><span class="date-number"></span></td>
+           <td class="calendar-cell"><span class="date-number"></span></td>
+         </tr>
+         <tr>
+           <td class="calendar-cell"><span class="date-number"></span></td>
+           <td class="calendar-cell"><span class="date-number"></span></td>
+           <td class="calendar-cell"><span class="date-number"></span></td>
+           <td class="calendar-cell"><span class="date-number"></span></td>
+           <td class="calendar-cell"><span class="date-number"></span></td>
+           <td class="calendar-cell"><span class="date-number"></span></td>
+           <td class="calendar-cell"><span class="date-number"></span></td>
+         </tr>
+         <tr>
+           <td class="calendar-cell"><span class="date-number"></span></td>
+           <td class="calendar-cell"><span class="date-number"></span></td>
+           <td class="calendar-cell"><span class="date-number"></span></td>
+           <td class="calendar-cell"><span class="date-number"></span></td>
+           <td class="calendar-cell"><span class="date-number"></span></td>
+           <td class="calendar-cell"><span class="date-number"></span></td>
+           <td class="calendar-cell"><span class="date-number"></span></td>
+         </tr>
+         <tr>
+           <td class="calendar-cell"><span class="date-number"></span></td>
+           <td class="calendar-cell"><span class="date-number"></span></td>
+           <td class="calendar-cell"><span class="date-number"></span></td>
+           <td class="calendar-cell"><span class="date-number"></span></td>
+           <td class="calendar-cell"><span class="date-number"></span></td>
+           <td class="calendar-cell"><span class="date-number"></span></td>
+           <td class="calendar-cell"><span class="date-number"></span></td>
+         </tr>
+         <tr>
+           <td class="calendar-cell"><span class="date-number"></span></td>
+           <td class="calendar-cell"><span class="date-number"></span></td>
+           <td class="calendar-cell"><span class="date-number"></span></td>
+           <td class="calendar-cell"><span class="date-number"></span></td>
+           <td class="calendar-cell"><span class="date-number"></span></td>
+           <td class="calendar-cell"><span class="date-number"></span></td>
+           <td class="calendar-cell"><span class="date-number"></span></td>
+         </tr>
+         <tr>
+           <td class="calendar-cell"><span class="date-number"></span></td>
+           <td class="calendar-cell"><span class="date-number"></span></td>
+           <td class="calendar-cell"><span class="date-number"></span></td>
+           <td class="calendar-cell"><span class="date-number"></span></td>
+           <td class="calendar-cell"><span class="date-number"></span></td>
+           <td class="calendar-cell"><span class="date-number"></span></td>
+           <td class="calendar-cell"><span class="date-number"></span></td>
+         </tr>
+       </tbody>
+     </table>
+
+     <div class="content-area">
+       <div class="left-column">
+         <!-- left column could contain notes or legends -->
+         <div class="event-section">
+           <div class="event-title" contenteditable="true">Event 1</div>
+           <div class="event-details">Details</div>
+         </div>
+         <div class="event-section">
+           <div class="event-title" contenteditable="true">Event 2</div>
+           <div class="event-details">Details</div>
+         </div>
+       </div>
+       <div class="right-column">
+         <div class="events-title">UPCOMING</div>
+         <div class="divider"></div>
+         <div class="event-section">
+           <div class="event-title" contenteditable="true">Women's Book Club</div>
+           <div class="event-details">7 PM - Library</div>
+         </div>
+         <div class="event-section">
+           <div class="event-title" contenteditable="true">Guided Arabic Tafseer</div>
+           <div class="event-details">9 AM - Hall</div>
+         </div>
+         <div class="event-section">
+           <div class="event-title" contenteditable="true">Wonderful Wednesdays</div>
+           <div class="event-details">2 PM - Zoom</div>
+         </div>
+       </div>
+     </div>
+   </div>
  </div>
- <div class="month-title" id="monthTitle">[MONTH YEAR]</div>
- <div class="spacer"></div>
- </div>
- 
- <div class="committee-title">VRIC Women's Committee</div>
- 
- <!-- Responsive Calendar Grid -->
- <table class="calendar-grid">
- <tr>
- <td class="day-header">SUN</td>
- <td class="day-header">MON</td>
- <td class="day-header">TUE</td>
- <td class="day-header">WED</td>
- <td class="day-header">THU</td>
- <td class="day-header">FRI</td>
- <td class="day-header">SAT</td>
- </tr>
- <!-- Week 1 -->
- <tr>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- </tr>
- <!-- Week 2 -->
- <tr>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- </tr>
- <!-- Week 3 -->
- <tr>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- </tr>
- <!-- Week 4 -->
- <tr>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- </tr>
- <!-- Week 5 -->
- <tr>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- </tr>
- <!-- Week 6 -->
- <tr>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- </tr>
- </table>
- 
- <div class="content-area">
- <div class="left-column">
- <div class="event-section">
- <div class="event-title" contenteditable="true">Women's Book Club</div>
- <div class="event-details" contenteditable="true">Mondays @ 6:30 p.m.</div>
- <hr class="divider">
- </div>
- <div class="event-section">
- <div class="event-title" contenteditable="true">Guided Arabic Tafseer & Beginners Arabic Grammar</div>
- <div class="event-details" contenteditable="true">Wednesdays @ 9:30 a.m.</div>
- <hr class="divider">
- </div>
- <div class="event-section">
- <div class="event-title" contenteditable="true">Tafseer in Arabic Halaqa</div>
- <div class="event-details" contenteditable="true">Wednesdays @ 10:00 a.m.</div>
- <hr class="divider">
- </div>
- <div class="event-section">
- <div class="event-title" contenteditable="true">Women Wonderful Wednesdays</div>
- <div class="event-details" contenteditable="true">Wednesdays @ 11:00 a.m.</div>
- <hr class="divider">
- </div>
- <div class="event-section">
- <div class="event-title" contenteditable="true">Little M&Ms</div>
- <div class="event-details" contenteditable="true">2nd and 4th Thursdays @ 10:00 a.m.</div>
- <hr class="divider">
- </div>
- <div class="event-section">
- <div class="event-title" contenteditable="true">Tafseer Thursdays</div>
- <div class="event-details" contenteditable="true">Thursdays @ 7:00 p.m.</div>
- <hr class="divider">
- </div>
- <div class="event-section">
- <div class="event-title" contenteditable="true">Sister's Self Defense Fundamentals</div>
- <div class="event-details" contenteditable="true">Saturdays @ 10:00 a.m</div>
- <hr class="divider">
- </div>
- </div>
- 
- <div class="right-column">
- <div class="event-section">
- <div class="event-title" contenteditable="true">Ladies Hike</div>
- <div class="event-details" contenteditable="true">Saturday, 9/6 @ 7:30 a.m.</div>
- </div>
- <div class="event-section">
- <div class="event-title" contenteditable="true">It Takes a Village</div>
- <div class="event-details" contenteditable="true">Saturday, 9/6 @ 10:00 a.m</div>
- </div>
- <div class="event-section">
- <div class="event-title" contenteditable="true">Picnic Under the Stars</div>
- <div class="event-details" contenteditable="true">Sunday, 9/7 @ 7:30 p.m.</div>
- </div>
- <div class="event-section">
- <div class="event-title" contenteditable="true">Coffee and Tatreez Social</div>
- <div class="event-details" contenteditable="true">Friday, 9/20 @ 10:00 a.m.</div>
- </div>
- <div class="event-section">
- <div class="event-title" contenteditable="true">Sister's Game Night</div>
- <div class="event-details" contenteditable="true">Friday, 9/26 @ 7:30 p.m.</div>
- </div>
- <div class="event-section">
- <div class="event-title" contenteditable="true">Shikka Bangla</div>
- <div class="event-details" contenteditable="true">Friday, 9/28 @ 1:00 p.m</div>
- </div>
- <div class="event-section">
- <div class="event-title" contenteditable="true">[Special Event]</div>
- <div class="event-details" contenteditable="true">[Date] @ [Time]</div>
- </div>
- </div>
- </div>
- 
- <div class="events-title">EVENTS</div>
- </div>
- </div>
- </div>
+
+ <script>
+ // Ensure both setupAutoResize and logo inlining run on DOMContentLoaded
+ document.addEventListener('DOMContentLoaded', () => {
+   try { setupAutoResize(); } catch (e) { console.warn(e); }
+   inlineLogoAsDataURL().catch(() => {});
+ });
+ </script>
 </body>
 </html>
