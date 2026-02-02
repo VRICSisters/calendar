@@ -1,1210 +1,1433 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
- <meta charset="UTF-8" />
- <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
- <title>VRIC Women's Committee Calendar Template</title>
- 
- <style>
- @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
- 
- body {
- margin: 0;
- padding: 0;
- font-family: 'Inter', sans-serif;
- background-color: #79b7ab;
- color: #333;
- overflow-x: hidden;
- }
- 
- /* Mobile-first responsive layout */
- .main-layout {
- display: flex;
- flex-direction: column;
- min-height: 100vh;
- }
- 
- /* Responsive sidebar - converts to top bar on mobile */
- .controls-sidebar {
- width: 100%;
- background: #fff;
- border-bottom: 3px solid #7bb3b3;
- padding: 1rem;
- box-sizing: border-box;
- overflow-y: visible;
- position: relative;
- z-index: 100;
- max-height: 50vh;
- overflow-y: auto;
- }
- 
- .controls-sidebar h2 {
- color: #7bb3b3;
- margin-top: 0;
- margin-bottom: 1rem;
- font-size: 1.2rem;
- }
- 
- /* Main content area - now responsive */
- .main-content {
- flex: 1;
- padding: 1rem;
- box-sizing: border-box;
- display: flex;
- justify-content: center;
- align-items: flex-start;
- }
- 
- /* Calendar container - now responsive and compact */
- .calendar-container {
- width: 100%;
- max-width: 450px;
- background: #f4f3ee;
- padding: 1rem;
- box-sizing: border-box;
- position: relative;
- border: 2px solid #ddd;
- box-shadow: 0 4px 8px rgba(0,0,0,0.1);
- min-height: fit-content;
- display: flex;
- flex-direction: column;
- }
- 
- .header {
- display: flex;
- justify-content: space-between;
- align-items: flex-start;
- margin-bottom: 0.3rem;
- flex-wrap: wrap;
- }
- 
- .spacer {
- width: 55px;
- flex-shrink: 0;
- }
- 
- .logo {
- width: 70px;
- height: 70px;
- border-radius: 50%;
- background: white;
- display: flex;
- align-items: center;
- justify-content: center;
- border: 2px solid #ddd;
- flex-shrink: 0;
- overflow: hidden;
- }
- 
- .logo img {
- width: 100%;
- height: 100%;
- object-fit: cover;
- border-radius: 50%;
- }
- 
- .month-title {
- font-size: clamp(1.5rem, 4.5vw, 2.2rem);
- font-weight: 700;
- color: #7bb3b3;
- text-align: center;
- flex-grow: 1;
- margin: 0 0.5rem;
- letter-spacing: 1px;
- }
- 
- .committee-title {
- font-size: clamp(1.1rem, 3.5vw, 1.8rem);
- font-weight: 700;
- color: #d85d8a;
- text-align: center;
- margin: 0.2rem 0 0.5rem 0;
- letter-spacing: 0.5px;
- }
- 
- /* Responsive calendar grid */
- .calendar-grid {
- width: 100%;
- border-collapse: collapse;
- margin-bottom: 0.6rem;
- table-layout: fixed;
- flex-shrink: 0;
- }
- 
- .day-header {
- background: transparent;
- color: #b8774d;
- font-weight: 600;
- font-size: clamp(0.8rem, 2.5vw, 1.2rem);
- padding: 0.5rem 0.2rem;
- text-align: center;
- border-bottom: 2px solid #b8774d;
- vertical-align: top;
- width: 14.28%;
- }
- 
- .calendar-cell {
- width: 14.28%;
- height: clamp(32px, 6.5vw, 55px);
- border: 1px solid #b8774d;
- padding: 0.1rem;
- vertical-align: top;
- position: relative;
- background: transparent;
- }
- 
- .date-number {
- font-size: clamp(0.8rem, 2.5vw, 1.1rem);
- font-weight: 600;
- color: #b8774d;
- margin-bottom: 0.05rem;
- line-height: 1;
- }
- 
- /* Responsive events section */
- .content-area {
- display: flex;
- flex-direction: column;
- gap: 0.4rem;
- margin-top: 0.3rem;
- width: 100%;
- flex: 1;
- }
- 
- .left-column {
- flex: 1;
- padding-right: 0;
- }
- 
- .right-column {
- flex: 1;
- background: #f8ffd6;
- padding: 0.6rem;
- border-radius: 6px;
- position: relative;
- }
- 
- .events-title {
- font-size: 0.1rem;
- font-weight: 700;
- color: #333;
- text-align: center;
- margin: 0.5rem 0;
- letter-spacing: 2px;
- }
- 
- .event-section {
- margin-bottom: 0.3rem;
- }
- 
- .event-title {
- font-size: clamp(0.7rem, 1.8vw, 0.9rem);
- font-weight: 600;
- color: #7bb3b3;
- margin-bottom: 0.05rem;
- line-height: 1;
- white-space: nowrap;
- overflow: hidden;
- text-overflow: ellipsis;
- transition: font-size 0.2s ease;
- }
- 
- .event-title.auto-shrink {
- font-size: auto;
- }
- 
- .event-details {
- font-size: clamp(0.6rem, 1.6vw, 0.8rem);
- color: #333;
- font-style: italic;
- margin-bottom: 0.3rem;
- line-height: 1;
- }
- 
- .divider {
- border: none;
- border-top: 1px solid #ccc;
- margin: 0.3rem 0;
- }
- 
- /* Responsive dots */
- .dot {
- width: clamp(10px, 2.5vw, 14px);
- height: clamp(10px, 2.5vw, 14px);
- border-radius: 50%;
- position: absolute;
- right: 0.1rem;
- transition: all 0.2s ease;
- }
- 
- /* Responsive dot positioning */
- .dot.position-1 {
- bottom: 0.1rem;
- }
- 
- .dot.position-2-first {
- bottom: calc(0.1rem + clamp(10px, 2.5vw, 14px) + 0.1rem);
- }
- .dot.position-2-second {
- bottom: 0.1rem;
- }
- 
- .dot.position-3-first {
- bottom: calc(0.1rem + 2 * (clamp(10px, 2.5vw, 14px) + 0.1rem));
- }
- .dot.position-3-second {
- bottom: calc(0.1rem + clamp(10px, 2.5vw, 14px) + 0.1rem);
- }
- .dot.position-3-third {
- bottom: 0.1rem;
- }
- 
- /* Dot colors remain the same */
- .dot-red { background-color: #ad5959; }
- .dot-orange { background-color: #efad7d; }
- .dot-yellow { background-color: #f2ce80; }
- .dot-green { background-color: #6daa65; }
- .dot-teal { background-color: #6aaea1; }
- .dot-blue { background-color: #85b3cb; }
- .dot-purple { background-color: #885b9c; }
- .dot-pink { background-color: #eb7993; }
- .dot-brown { background-color: #b58a60; }
- .dot-black { background-color: #2d2c34; }
- .dot-gray { background-color: #afb3be; }
- 
- /* Text color classes remain the same */
- .text-red { color: #ad5959 !important; }
- .text-orange { color: #efad7d !important; }
- .text-yellow { color: #f2ce80 !important; }
- .text-green { color: #6daa65 !important; }
- .text-teal { color: #6aaea1 !important; }
- .text-blue { color: #85b3cb !important; }
- .text-purple { color: #885b9c !important; }
- .text-pink { color: #eb7993 !important; }
- .text-brown { color: #b58a60 !important; }
- .text-black { color: #2d2c34 !important; }
- .text-gray { color: #afb3be !important; }
- 
- .logo-placeholder {
- color: #7bb3b3;
- font-weight: 600;
- font-size: 6px;
- }
- 
- .user-input {
- background-color: #fff3cd;
- border: 2px dashed #856404;
- padding: 0.3rem;
- border-radius: 4px;
- font-weight: 600;
- }
- 
- /* Responsive sidebar control styles */
- .control-group {
- margin-bottom: 1rem;
- padding-bottom: 0.8rem;
- border-bottom: 1px solid #eee;
- }
- 
- .control-group:last-child {
- border-bottom: none;
- }
- 
- .control-group h3 {
- margin: 0 0 0.5rem 0;
- color: #495057;
- font-size: 1rem;
- }
- 
- .control-row {
- display: flex;
- gap: 0.5rem;
- align-items: center;
- margin-bottom: 0.5rem;
- flex-wrap: wrap;
- }
- 
- .control-input {
- padding: 0.5rem;
- font-size: 0.8rem;
- border: 1px solid #ccc;
- border-radius: 4px;
- flex: 1;
- min-width: 100px;
- }
- 
- .action-btn {
- padding: 0.5rem 0.8rem;
- border: none;
- border-radius: 5px;
- cursor: pointer;
- font-weight: 600;
- color: white;
- font-size: 0.7rem;
- white-space: nowrap;
- }
- 
- .btn-generate { background: #7bb3b3; }
- .btn-example { background: #d85d8a; }
- .btn-apply { background: #e6a882; }
- .btn-text { background: #b19cd9; }
- .btn-reset { background: #6c757d; }
- 
- .text-controls {
- background: #f8f9fa;
- border: 2px dashed #6c757d;
- padding: 0.8rem;
- border-radius: 8px;
- }
- 
- .text-controls h3 {
- margin-top: 0;
- color: #495057;
- }
- 
- .help-text {
- font-size: 0.7rem;
- color: #666;
- margin-top: 0.5rem;
- line-height: 1.3;
- }
- 
- /* Desktop responsive breakpoints */
- @media (min-width: 768px) {
- .main-layout {
- flex-direction: row;
- height: 100vh;
- }
- 
- .controls-sidebar {
- width: 320px;
- max-height: 100vh;
- border-right: 3px solid #7bb3b3;
- border-bottom: none;
- position: fixed;
- height: 100vh;
- }
- 
- .main-content {
- margin-left: 320px;
- padding: 1.5rem;
- }
- 
- .calendar-container {
- max-width: 600px;
- padding: 1.5rem;
- min-height: fit-content;
- }
- 
- .content-area {
- flex-direction: row;
- gap: 1rem;
- }
- 
- .left-column {
- padding-right: 0.8rem;
- }
- }
- 
- @media (min-width: 1200px) {
- .controls-sidebar {
- width: 380px;
- }
- 
- .main-content {
- margin-left: 380px;
- }
- 
- .calendar-container {
- max-width: 750px;
- padding: 2rem;
- min-height: fit-content;
- }
- }
- 
- /* Instagram story optimization */
- @media (max-width: 480px) {
- .calendar-container {
- max-width: 100%;
- padding: 1rem;
- min-height: fit-content;
- }
- 
- .controls-sidebar {
- max-height: 40vh;
- }
- 
- .header {
- margin-bottom: 0.8rem;
- }
- 
- .logo {
- width: 35px;
- height: 35px;
- }
- 
- .spacer {
- width: 25px;
- }
- 
- .calendar-cell {
- height: clamp(35px, 7vw, 50px);
- }
- 
- .content-area {
- margin-top: 0.8rem;
- }
- 
- .event-section {
- margin-bottom: 0.6rem;
- }
- }
- </style>
- 
- <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
- <script>
- // Auto-resize event titles to fit on one line
- function autoResizeEventTitles() {
- const eventTitles = document.querySelectorAll('.event-title');
- 
- eventTitles.forEach(title => {
- // Reset to default size first
- title.style.fontSize = '';
- title.classList.remove('auto-shrink');
- 
- // Check if text overflows
- if (title.scrollWidth > title.clientWidth) {
- let fontSize = parseFloat(window.getComputedStyle(title).fontSize);
- const minFontSize = 8; // Minimum readable font size in pixels
- 
- // Gradually reduce font size until text fits or reaches minimum
- while (title.scrollWidth > title.clientWidth && fontSize > minFontSize) {
- fontSize -= 0.5;
- title.style.fontSize = fontSize + 'px';
- }
- 
- title.classList.add('auto-shrink');
- }
- });
- }
- 
- // Auto-resize when content changes or window resizes
- function setupAutoResize() {
- // Resize on window resize
- let resizeTimeout;
- window.addEventListener('resize', () => {
- clearTimeout(resizeTimeout);
- resizeTimeout = setTimeout(autoResizeEventTitles, 100);
- });
- 
- // Resize when content is edited
- const eventTitles = document.querySelectorAll('.event-title');
- eventTitles.forEach(title => {
- title.addEventListener('input', () => {
- setTimeout(autoResizeEventTitles, 10);
- });
- 
- title.addEventListener('blur', () => {
- setTimeout(autoResizeEventTitles, 10);
- });
- });
- 
- // Initial resize
- setTimeout(autoResizeEventTitles, 100);
- }
- 
- // Initialize auto-resize when page loads
- document.addEventListener('DOMContentLoaded', setupAutoResize);
- 
- function populateCalendar() {
- const monthNumber = parseInt(document.getElementById('monthSelect').value);
- const year = parseInt(document.getElementById('yearSelect').value);
- 
- if (!monthNumber || !year) {
- alert('Please select both month and year');
- return;
- }
- 
- // Get month name for title
- const monthNames = ['', 'JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE',
- 'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'];
- 
- // Update title
- document.getElementById('monthTitle').textContent = `${monthNames[monthNumber]} ${year}`;
- 
- // Calculate first day of month (0=Sunday, 1=Monday, etc.)
- const firstDay = new Date(year, monthNumber - 1, 1).getDay();
- 
- // Days in month
- const daysInMonth = new Date(year, monthNumber, 0).getDate();
- 
- // Calculate total weeks needed
- const totalCells = firstDay + daysInMonth;
- const weeksNeeded = Math.ceil(totalCells / 7);
- 
- // Clear all cells and dots first
- const allRows = document.querySelectorAll('.calendar-grid tr');
- const cellWrappers = document.querySelectorAll('.calendar-cell');
- const dateSpans = document.querySelectorAll('.calendar-cell .date-number');
- 
- dateSpans.forEach(s => (s.textContent = ''));
- cellWrappers.forEach(c => {
- const dots = c.querySelectorAll('.dot');
- dots.forEach(d => d.remove());
- });
- 
- // Show/hide rows based on weeks needed (skip header row)
- for (let i = 1; i < allRows.length; i++) {
- if (i <= weeksNeeded) {
- allRows[i].style.display = '';
- } else {
- allRows[i].style.display = 'none';
- }
- }
- 
- // Fill dates starting at the calculated first day
- let dateCounter = 1;
- for (let i = firstDay; i < firstDay + daysInMonth; i++) {
- if (i < dateSpans.length) {
- dateSpans[i].textContent = dateCounter;
- dateCounter++;
- }
- }
- 
- // Store first day for dot calculations
- window.currentFirstDay = firstDay;
- 
- // Auto-resize event titles after calendar is generated
- setTimeout(autoResizeEventTitles, 200);
- }
- 
- // Enhanced addDotToDate: supports multiple dots with smart positioning
- function addDotToDate(dateNumber, colorClass) {
- const cells = document.querySelectorAll('.calendar-cell');
- cells.forEach(cell => {
- const dateEl = cell.querySelector('.date-number');
- const dateText = dateEl ? dateEl.textContent : '';
- if (dateText == dateNumber) {
- if (colorClass === 'erase') {
- // Remove ALL dots from that cell
- const existingDots = cell.querySelectorAll('.dot');
- existingDots.forEach(dot => dot.remove());
- } else {
- // Get existing dots and their colors
- const existingDots = cell.querySelectorAll('.dot');
- const existingColors = Array.from(existingDots).map(dot => {
- // Extract color class from dot
- const classList = Array.from(dot.classList);
- return classList.find(cls => cls.startsWith('dot-'));
- });
- 
- // Check if this color already exists
- if (existingColors.includes(colorClass)) {
- // Color already exists, don't add duplicate
- return;
- }
- 
- // Check if we're at max capacity (3 dots)
- if (existingDots.length >= 3) {
- alert(`Date ${dateNumber} already has 3 dots (maximum). Remove a dot first if you want to add a different color.`);
- return;
- }
- 
- // Add the new dot
- const newDot = document.createElement('div');
- newDot.className = `dot ${colorClass}`;
- cell.appendChild(newDot);
- 
- // Reposition all dots in this cell
- repositionDots(cell);
- }
- }
- });
- }
- 
- // Smart dot repositioning system
- function repositionDots(cell) {
- const dots = cell.querySelectorAll('.dot');
- const dotCount = dots.length;
- 
- // Remove all position classes first
- dots.forEach(dot => {
- dot.classList.remove(
- 'position-1',
- 'position-2-first', 'position-2-second',
- 'position-3-first', 'position-3-second', 'position-3-third'
- );
- });
- 
- // Apply appropriate positioning based on count
- if (dotCount === 1) {
- dots[0].classList.add('position-1');
- } else if (dotCount === 2) {
- dots[0].classList.add('position-2-first');
- dots[1].classList.add('position-2-second');
- } else if (dotCount === 3) {
- dots[0].classList.add('position-3-first');
- dots[1].classList.add('position-3-second');
- dots[2].classList.add('position-3-third');
- }
- }
- 
- // Enhanced erase function that repositions remaining dots
- function eraseDotFromDates() {
- const dateInput = document.getElementById('eraseDateInput').value.trim();
- 
- if (!dateInput) {
- alert('Please enter at least one date number to erase dots from (e.g., 3,7,15).');
- return;
- }
- 
- // Parse CSV input
- const dateStrings = dateInput.split(',').map(s => s.trim()).filter(s => s);
- const dateNumbers = [];
- 
- for (let dateStr of dateStrings) {
- const dateNum = parseInt(dateStr, 10);
- if (isNaN(dateNum) || dateNum < 1 || dateNum > 31) {
- alert(`Invalid date: "${dateStr}". Please use numbers 1-31.`);
- return;
- }
- dateNumbers.push(dateNum);
- }
- 
- // Erase dots from all specified dates
- dateNumbers.forEach(dateNum => {
- addDotToDate(dateNum, 'erase'); // This will remove all dots and trigger repositioning
- });
- 
- // Clear the input after successful erase
- document.getElementById('eraseDateInput').value = '';
- }
- 
- function toggleExampleDots() {
- const button = document.getElementById('exampleDotsBtn');
- 
- if (button.textContent.includes('ADD EXAMPLE DOTS') || button.textContent.includes('ADD EXAMPLES')) {
- // Add example dots
- addDotToDate(5, 'dot-red');
- addDotToDate(12, 'dot-orange');
- addDotToDate(18, 'dot-yellow');
- addDotToDate(25, 'dot-green');
- 
- // Change button to erase mode
- button.innerHTML = '🗑️ ERASE ALL';
- button.style.background = '#dc3545';
- } else {
- // Erase all dots
- const allDots = document.querySelectorAll('.dot');
- allDots.forEach(dot => dot.remove());
- 
- // Change button back to example mode
- button.innerHTML = '🎨 ADD EXAMPLES';
- button.style.background = '#d85d8a';
- }
- }
- 
- // Enhanced weekday dot application with multi-dot support
- function applyDotsToDay() {
- const colorClass = document.getElementById('dotColorInput').value;
- const targetWeekday = parseInt(document.getElementById('dotDayInput').value);
- 
- if (window.currentFirstDay === undefined) {
- alert('Please generate the calendar first by selecting month and year.');
- return;
- }
- 
- const firstDayOffset = window.currentFirstDay;
- 
- const cells = document.querySelectorAll('.calendar-cell');
- cells.forEach(cell => {
- const dateEl = cell.querySelector('.date-number');
- const dateText = dateEl ? dateEl.textContent : '';
- if (!dateText) return;
- const dateNum = parseInt(dateText, 10);
- const weekday = (firstDayOffset + dateNum - 1) % 7;
- if (weekday === targetWeekday) {
- if (colorClass === 'erase') {
- // Remove all dots from that cell
- const existingDots = cell.querySelectorAll('.dot');
- existingDots.forEach(dot => dot.remove());
- } else {
- addDotToDate(dateNum, colorClass);
- }
- }
- });
- }
- 
- // Apply to specific date(s) - now supports CSV input
- function applyDotToSpecificDate() {
- const colorClass = document.getElementById('dotColorInput').value;
- const dateInput = document.getElementById('dotDateInput').value.trim();
- 
- if (!dateInput) {
- alert('Please enter at least one date number (e.g., 1 or 1,5,12).');
- return;
- }
- 
- // Parse CSV input - split by comma and clean up
- const dateStrings = dateInput.split(',').map(s => s.trim()).filter(s => s);
- const dateNumbers = [];
- 
- for (let dateStr of dateStrings) {
- const dateNum = parseInt(dateStr, 10);
- if (isNaN(dateNum) || dateNum < 1 || dateNum > 31) {
- alert(`Invalid date: "${dateStr}". Please use numbers 1-31.`);
- return;
- }
- dateNumbers.push(dateNum);
- }
- 
- // Apply dots to all valid dates
- dateNumbers.forEach(dateNum => {
- addDotToDate(dateNum, colorClass);
- });
- }
- 
- // NEW TEXT COLORING FUNCTIONS
- function applyTextColor() {
- const colorClass = document.getElementById('textColorInput').value;
- const selection = window.getSelection();
- 
- if (selection.rangeCount === 0 || selection.toString().trim() === '') {
- alert('Please select some text first by highlighting it with your mouse.');
- return;
- }
- 
- if (colorClass === 'reset') {
- // Remove all text color classes
- const range = selection.getRangeAt(0);
- const selectedContent = range.extractContents();
- 
- // Remove color classes from all elements in the selection
- const walker = document.createTreeWalker(
- selectedContent,
- NodeFilter.SHOW_ELEMENT,
- null,
- false
- );
- 
- let node;
- const elementsToProcess = [];
- while (node = walker.nextNode()) {
- elementsToProcess.push(node);
- }
- 
- elementsToProcess.forEach(element => {
- element.classList.remove('text-red', 'text-orange', 'text-yellow', 'text-green', 'text-teal', 'text-blue', 'text-purple', 'text-pink', 'text-brown', 'text-black', 'text-gray');
- });
- 
- range.insertNode(selectedContent);
- } else {
- // Apply color class
- const range = selection.getRangeAt(0);
- const span = document.createElement('span');
- span.className = colorClass;
- 
- try {
- range.surroundContents(span);
- } catch (e) {
- // If we can't surround (crossing element boundaries), extract and wrap
- const selectedContent = range.extractContents();
- span.appendChild(selectedContent);
- range.insertNode(span);
- }
- }
- 
- // Clear selection
- selection.removeAllRanges();
- }
- 
- function resetAllTextColors() {
- if (confirm('This will reset all text colors in the entire calendar. Continue?')) {
- const coloredElements = document.querySelectorAll('.text-red, .text-orange, .text-yellow, .text-green, .text-teal, .text-blue, .text-purple, .text-pink, .text-brown, .text-black, .text-gray');
- coloredElements.forEach(element => {
- // Remove the color class but keep the content
- element.classList.remove('text-red', 'text-orange', 'text-yellow', 'text-green', 'text-teal', 'text-blue', 'text-purple', 'text-pink', 'text-brown', 'text-black', 'text-gray');
- 
- // If the span has no other classes/attributes, unwrap it
- if (element.tagName.toLowerCase() === 'span' && element.className === '' && !element.hasAttributes()) {
- const parent = element.parentNode;
- while (element.firstChild) {
- parent.insertBefore(element.firstChild, element);
- }
- parent.removeChild(element);
- }
- });
- }
- }
- 
- // Export calendar as Instagram post image
- async function exportCalendarAsImage() {
- const calendarContainer = document.querySelector('.calendar-container');
- 
- try {
- // Show loading message
- const button = event.target;
- const originalText = button.innerHTML;
- button.innerHTML = '⏳ Generating...';
- button.disabled = true;
- 
- // Configure html2canvas for Instagram post dimensions
- const canvas = await html2canvas(calendarContainer, {
- width: 1080,
- height: 1350, // Instagram portrait post dimensions (4:5 ratio)
- scale: 2, // Higher resolution
- backgroundColor: '#f4f3ee',
- useCORS: true,
- allowTaint: true,
- scrollX: 0,
- scrollY: 0
- });
- 
- // Create download link
- const link = document.createElement('a');
- link.download = `VRIC-Calendar-${document.getElementById('monthTitle').textContent.replace(/\s+/g, '-')}.png`;
- link.href = canvas.toDataURL('image/png', 0.95);
- 
- // Trigger download
- document.body.appendChild(link);
- link.click();
- document.body.removeChild(link);
- 
- // Reset button
- button.innerHTML = originalText;
- button.disabled = false;
- 
- } catch (error) {
- console.error('Export failed:', error);
- alert('Export failed. Please try again or use a screenshot instead.');
- 
- // Reset button
- const button = event.target;
- button.innerHTML = '📸 Export for Instagram';
- button.disabled = false;
- }
- }
- 
- function addExampleTextColors() {
- // Add some example colored text to demonstrate the feature
- const eventTitles = document.querySelectorAll('.event-title');
- if (eventTitles.length >= 4) {
- // Color the first few event titles as examples
- eventTitles[0].innerHTML = '<span class="text-red">Women\'s Book Club</span>';
- eventTitles[1].innerHTML = '<span class="text-orange">Guided Arabic Tafseer</span>';
- eventTitles[2].innerHTML = '<span class="text-green">Tafseer in Arabic</span>';
- eventTitles[3].innerHTML = '<span class="text-blue">Wonderful Wednesdays</span>';
- }
- }
- </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>VRIC Women's Committee Calendar</title>
+  
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:wght@600;700&display=swap');
+    
+    :root {
+      --teal-primary: #7bb3b3;
+      --teal-dark: #5a9a9a;
+      --pink-accent: #d85d8a;
+      --orange-warm: #e6a882;
+      --cream-bg: #f4f3ee;
+      --brown-date: #b8774d;
+      --yellow-highlight: #f8ffd6;
+      --shadow-soft: 0 4px 20px rgba(0,0,0,0.08);
+      --shadow-lifted: 0 8px 32px rgba(0,0,0,0.12);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 20px;
+      
+      /* Dot colors */
+      --dot-red: #ad5959;
+      --dot-orange: #efad7d;
+      --dot-yellow: #f2ce80;
+      --dot-green: #6daa65;
+      --dot-teal: #6aaea1;
+      --dot-blue: #85b3cb;
+      --dot-purple: #885b9c;
+      --dot-pink: #eb7993;
+      --dot-brown: #b58a60;
+      --dot-black: #2d2c34;
+      --dot-gray: #afb3be;
+    }
+    
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'DM Sans', sans-serif;
+      background: linear-gradient(145deg, #79b7ab 0%, #5a9a9a 100%);
+      color: #333;
+      min-height: 100vh;
+      min-height: 100dvh;
+      overflow-x: hidden;
+    }
+    
+    /* ===== MOBILE-FIRST LAYOUT ===== */
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      min-height: 100dvh;
+    }
+    
+    /* Preview Area - Top on mobile */
+    .preview-area {
+      flex: 1;
+      padding: 1rem;
+      padding-bottom: 0.5rem;
+      overflow-y: auto;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    
+    /* Calendar Container */
+    .calendar-container {
+      width: 100%;
+      max-width: 420px;
+      background: var(--cream-bg);
+      padding: 1rem;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lifted);
+      position: relative;
+    }
+    
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.25rem;
+    }
+    
+    .logo {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #ddd;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    
+    .logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+    
+    .month-title {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(1.3rem, 5vw, 1.8rem);
+      font-weight: 700;
+      color: var(--teal-primary);
+      text-align: center;
+      flex-grow: 1;
+      margin: 0 0.5rem;
+      letter-spacing: 0.5px;
+    }
+    
+    .spacer {
+      width: 50px;
+      flex-shrink: 0;
+    }
+    
+    .committee-title {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(0.95rem, 3.5vw, 1.3rem);
+      font-weight: 600;
+      color: var(--pink-accent);
+      text-align: center;
+      margin: 0.15rem 0 0.4rem 0;
+      letter-spacing: 0.3px;
+    }
+    
+    /* Calendar Grid */
+    .calendar-grid {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 0.5rem;
+      table-layout: fixed;
+    }
+    
+    .day-header {
+      background: transparent;
+      color: var(--brown-date);
+      font-weight: 600;
+      font-size: clamp(0.65rem, 2.5vw, 0.85rem);
+      padding: 0.4rem 0.1rem;
+      text-align: center;
+      border-bottom: 2px solid var(--brown-date);
+      width: 14.28%;
+    }
+    
+    .calendar-cell {
+      width: 14.28%;
+      height: clamp(36px, 8vw, 48px);
+      border: 1px solid var(--brown-date);
+      padding: 0.1rem;
+      vertical-align: top;
+      position: relative;
+      background: transparent;
+    }
+    
+    .date-number {
+      font-size: clamp(0.7rem, 2.5vw, 0.95rem);
+      font-weight: 600;
+      color: var(--brown-date);
+      line-height: 1;
+    }
+    
+    /* Dots */
+    .dot {
+      width: clamp(8px, 2.2vw, 12px);
+      height: clamp(8px, 2.2vw, 12px);
+      border-radius: 50%;
+      position: absolute;
+      right: 2px;
+      transition: all 0.2s ease;
+    }
+    
+    .dot.position-1 { bottom: 2px; }
+    .dot.position-2-first { bottom: calc(2px + clamp(8px, 2.2vw, 12px) + 2px); }
+    .dot.position-2-second { bottom: 2px; }
+    .dot.position-3-first { bottom: calc(2px + 2 * (clamp(8px, 2.2vw, 12px) + 2px)); }
+    .dot.position-3-second { bottom: calc(2px + clamp(8px, 2.2vw, 12px) + 2px); }
+    .dot.position-3-third { bottom: 2px; }
+    
+    .dot-red { background-color: var(--dot-red); }
+    .dot-orange { background-color: var(--dot-orange); }
+    .dot-yellow { background-color: var(--dot-yellow); }
+    .dot-green { background-color: var(--dot-green); }
+    .dot-teal { background-color: var(--dot-teal); }
+    .dot-blue { background-color: var(--dot-blue); }
+    .dot-purple { background-color: var(--dot-purple); }
+    .dot-pink { background-color: var(--dot-pink); }
+    .dot-brown { background-color: var(--dot-brown); }
+    .dot-black { background-color: var(--dot-black); }
+    .dot-gray { background-color: var(--dot-gray); }
+    
+    /* Text colors */
+    .text-red { color: var(--dot-red) !important; }
+    .text-orange { color: var(--dot-orange) !important; }
+    .text-yellow { color: var(--dot-yellow) !important; }
+    .text-green { color: var(--dot-green) !important; }
+    .text-teal { color: var(--dot-teal) !important; }
+    .text-blue { color: var(--dot-blue) !important; }
+    .text-purple { color: var(--dot-purple) !important; }
+    .text-pink { color: var(--dot-pink) !important; }
+    .text-brown { color: var(--dot-brown) !important; }
+    .text-black { color: var(--dot-black) !important; }
+    .text-gray { color: var(--dot-gray) !important; }
+    
+    /* Events Area */
+    .content-area {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      margin-top: 0.25rem;
+    }
+    
+    .events-columns {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .left-column {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .right-column {
+      flex: 1;
+      background: var(--yellow-highlight);
+      padding: 0.5rem;
+      border-radius: var(--radius-sm);
+      min-width: 0;
+    }
+    
+    .event-section {
+      margin-bottom: 0.25rem;
+    }
+    
+    .event-title {
+      font-size: clamp(0.6rem, 1.8vw, 0.8rem);
+      font-weight: 600;
+      color: var(--teal-primary);
+      margin-bottom: 0.05rem;
+      line-height: 1.15;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+    
+    .event-details {
+      font-size: clamp(0.55rem, 1.5vw, 0.7rem);
+      color: #555;
+      font-style: italic;
+      margin-bottom: 0.2rem;
+      line-height: 1.15;
+    }
+    
+    .divider {
+      border: none;
+      border-top: 1px solid #ccc;
+      margin: 0.2rem 0;
+    }
+    
+    .events-label {
+      font-size: 0.5rem;
+      font-weight: 700;
+      color: #333;
+      text-align: center;
+      margin-top: 0.3rem;
+      letter-spacing: 2px;
+    }
+    
+    /* ===== BOTTOM CONTROL PANEL ===== */
+    .control-panel {
+      background: white;
+      border-top-left-radius: var(--radius-lg);
+      border-top-right-radius: var(--radius-lg);
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+      padding-bottom: env(safe-area-inset-bottom, 0);
+    }
+    
+    /* Tabs */
+    .tab-bar {
+      display: flex;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .tab-btn {
+      flex: 1;
+      padding: 0.75rem 0.5rem;
+      border: none;
+      background: transparent;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #888;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.2rem;
+    }
+    
+    .tab-btn.active {
+      color: var(--teal-primary);
+      background: rgba(123, 179, 179, 0.08);
+    }
+    
+    .tab-btn span.icon {
+      font-size: 1.2rem;
+    }
+    
+    /* Tab Content */
+    .tab-content {
+      display: none;
+      padding: 1rem;
+      max-height: 45vh;
+      overflow-y: auto;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    /* Form Controls */
+    .control-row {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    
+    .control-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 0.25rem;
+      display: block;
+    }
+    
+    .control-select, .control-input {
+      padding: 0.6rem 0.75rem;
+      font-size: 0.85rem;
+      font-family: 'DM Sans', sans-serif;
+      border: 2px solid #e0e0e0;
+      border-radius: var(--radius-sm);
+      background: white;
+      flex: 1;
+      min-width: 0;
+      transition: border-color 0.2s;
+    }
+    
+    .control-select:focus, .control-input:focus {
+      outline: none;
+      border-color: var(--teal-primary);
+    }
+    
+    .btn {
+      padding: 0.6rem 1rem;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    
+    .btn-primary {
+      background: var(--teal-primary);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: var(--teal-dark);
+    }
+    
+    .btn-accent {
+      background: var(--pink-accent);
+      color: white;
+    }
+    
+    .btn-success {
+      background: #28a745;
+      color: white;
+    }
+    
+    .btn-warning {
+      background: var(--orange-warm);
+      color: white;
+    }
+    
+    .btn-danger {
+      background: #dc3545;
+      color: white;
+    }
+    
+    .btn-outline {
+      background: transparent;
+      border: 2px solid #ddd;
+      color: #666;
+    }
+    
+    .btn-sm {
+      padding: 0.4rem 0.6rem;
+      font-size: 0.7rem;
+    }
+    
+    /* Color Picker Grid */
+    .color-picker {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin: 0.5rem 0;
+    }
+    
+    .color-swatch {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 3px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .color-swatch:hover {
+      transform: scale(1.1);
+    }
+    
+    .color-swatch.selected {
+      border-color: #333;
+      box-shadow: 0 0 0 2px white, 0 0 0 4px #333;
+    }
+    
+    .color-swatch.erase {
+      background: linear-gradient(135deg, #fff 45%, #ff4444 45%, #ff4444 55%, #fff 55%);
+      border: 2px solid #ddd;
+    }
+    
+    /* Event Editor List */
+    .event-list {
+      max-height: 35vh;
+      overflow-y: auto;
+    }
+    
+    .event-editor-item {
+      background: #f8f9fa;
+      border-radius: var(--radius-sm);
+      padding: 0.6rem;
+      margin-bottom: 0.5rem;
+      border-left: 4px solid var(--teal-primary);
+    }
+    
+    .event-editor-item.special {
+      border-left-color: var(--orange-warm);
+      background: #fffef5;
+    }
+    
+    .event-editor-item input {
+      width: 100%;
+      padding: 0.4rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem;
+      margin-bottom: 0.3rem;
+    }
+    
+    .event-editor-item input:focus {
+      outline: none;
+      border-color: var(--teal-primary);
+    }
+    
+    .event-editor-row {
+      display: flex;
+      gap: 0.3rem;
+      align-items: center;
+    }
+    
+    .event-editor-row input {
+      flex: 1;
+      margin-bottom: 0;
+    }
+    
+    .event-color-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid #ddd;
+      cursor: pointer;
+      flex-shrink: 0;
+      position: relative;
+    }
+    
+    .event-color-btn::after {
+      content: '🎨';
+      font-size: 0.7rem;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    
+    .event-delete-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: none;
+      background: #ffebee;
+      color: #dc3545;
+      cursor: pointer;
+      flex-shrink: 0;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .add-event-btn {
+      width: 100%;
+      padding: 0.6rem;
+      margin-top: 0.5rem;
+      border: 2px dashed #ccc;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: #888;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .add-event-btn:hover {
+      border-color: var(--teal-primary);
+      color: var(--teal-primary);
+    }
+    
+    /* Color Picker Modal */
+    .color-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    
+    .color-modal.show {
+      display: flex;
+    }
+    
+    .color-modal-content {
+      background: white;
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      width: 100%;
+      max-width: 300px;
+      box-shadow: var(--shadow-lifted);
+    }
+    
+    .color-modal h3 {
+      margin: 0 0 1rem 0;
+      font-size: 1rem;
+      color: #333;
+    }
+    
+    .color-modal .color-picker {
+      justify-content: center;
+    }
+    
+    .color-modal-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    
+    .color-modal-actions .btn {
+      flex: 1;
+    }
+    
+    /* Section Headers */
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+    
+    .section-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #333;
+    }
+    
+    /* Help text */
+    .help-text {
+      font-size: 0.7rem;
+      color: #888;
+      margin-top: 0.5rem;
+      line-height: 1.4;
+    }
+    
+    /* ===== DESKTOP STYLES ===== */
+    @media (min-width: 768px) {
+      .app-container {
+        flex-direction: row;
+        height: 100vh;
+      }
+      
+      .preview-area {
+        flex: 1;
+        padding: 2rem;
+        align-items: center;
+        order: 2;
+      }
+      
+      .calendar-container {
+        max-width: 550px;
+        padding: 1.5rem;
+      }
+      
+      .control-panel {
+        width: 360px;
+        height: 100vh;
+        overflow-y: auto;
+        border-radius: 0;
+        border-right: 3px solid var(--teal-primary);
+        box-shadow: 4px 0 20px rgba(0,0,0,0.1);
+        order: 1;
+      }
+      
+      .tab-content {
+        max-height: none;
+      }
+      
+      .event-list {
+        max-height: 50vh;
+      }
+      
+      .events-columns {
+        flex-direction: row;
+      }
+      
+      .content-area {
+        flex-direction: column;
+      }
+      
+      .logo {
+        width: 60px;
+        height: 60px;
+      }
+      
+      .spacer {
+        width: 60px;
+      }
+    }
+    
+    @media (min-width: 1024px) {
+      .control-panel {
+        width: 400px;
+      }
+      
+      .calendar-container {
+        max-width: 650px;
+        padding: 2rem;
+      }
+    }
+    
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #333;
+      color: white;
+      padding: 0.75rem 1.25rem;
+      border-radius: var(--radius-md);
+      font-size: 0.85rem;
+      z-index: 2000;
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+    
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+    
+    @media (min-width: 768px) {
+      .toast {
+        bottom: 40px;
+      }
+    }
+  </style>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
- 
+
 <body>
- <div class="main-layout">
- <!-- Responsive Controls Sidebar -->
- <div class="controls-sidebar">
- <h2>📝 EDIT CALENDAR</h2>
- 
- <div class="control-group">
- <h3>📅 Calendar Setup</h3>
- <div class="control-row">
- <select id="monthSelect" class="control-input">
- <option value="">Choose Month...</option>
- <option value="1">January</option>
- <option value="2">February</option>
- <option value="3">March</option>
- <option value="4">April</option>
- <option value="5">May</option>
- <option value="6">June</option>
- <option value="7">July</option>
- <option value="8">August</option>
- <option value="9">September</option>
- <option value="10">October</option>
- <option value="11">November</option>
- <option value="12">December</option>
- </select>
- <select id="yearSelect" class="control-input">
- <option value="">Year...</option>
- <option value="2025">2025</option>
- <option value="2026">2026</option>
- <option value="2027">2027</option>
- <option value="2028">2028</option>
- <option value="2029">2029</option>
- </select>
- </div>
- <div class="control-row">
- <button onclick="populateCalendar()" class="action-btn btn-generate">
- 📅 GENERATE
- </button>
- <button onclick="toggleExampleDots()" id="exampleDotsBtn" class="action-btn btn-example">
- 🎨 EXAMPLES
- </button>
- <button onclick="exportCalendarAsImage()" class="action-btn" style="background: #28a745;">
- 📸 Export for Instagram
- </button>
- </div>
- </div>
- 
- <div class="control-group">
- <h3>🔵 Dot Colors</h3>
- <div class="control-row">
- <select id="dotColorInput" class="control-input">
- <option value="dot-red">Red</option>
- <option value="dot-orange">Orange</option>
- <option value="dot-yellow">Yellow</option>
- <option value="dot-green">Green</option>
- <option value="dot-teal">Teal</option>
- <option value="dot-blue">Blue</option>
- <option value="dot-purple">Purple</option>
- <option value="dot-pink">Pink</option>
- <option value="dot-brown">Brown</option>
- <option value="dot-black">Black</option>
- <option value="dot-gray">Gray</option>
- <option value="erase">❌ Erase</option>
- </select>
- </div>
- 
- <div class="control-row">
- <select id="dotDayInput" class="control-input">
- <option value="0">Sunday</option>
- <option value="1">Monday</option>
- <option value="2">Tuesday</option>
- <option value="3">Wednesday</option>
- <option value="4">Thursday</option>
- <option value="5">Friday</option>
- <option value="6">Saturday</option>
- </select>
- <button onclick="applyDotsToDay()" class="action-btn btn-apply">
- Apply Day
- </button>
- </div>
- 
- <div class="control-row">
- <input id="dotDateInput" type="text" placeholder="1,5,12,25" class="control-input">
- <button onclick="applyDotToSpecificDate()" class="action-btn btn-apply">
- Apply Dates
- </button>
- </div>
- 
- <div class="control-row">
- <input id="eraseDateInput" type="text" placeholder="Erase: 3,7,15" class="control-input">
- <button onclick="eraseDotFromDates()" class="action-btn" style="background: #dc3545;">
- 🗑️ Erase
- </button>
- </div>
- </div>
- 
- <div class="control-group">
- <div class="text-controls">
- <h3>🎨 Text Colors</h3>
- 
- <div class="control-row">
- <select id="textColorInput" class="control-input">
- <option value="text-red">Red</option>
- <option value="text-orange">Orange</option>
- <option value="text-yellow">Yellow</option>
- <option value="text-green">Green</option>
- <option value="text-teal">Teal</option>
- <option value="text-blue">Blue</option>
- <option value="text-purple">Purple</option>
- <option value="text-pink">Pink</option>
- <option value="text-brown">Brown</option>
- <option value="text-black">Black</option>
- <option value="text-gray">Gray</option>
- <option value="reset">🔄 Reset</option>
- </select>
- </div>
- 
- <div class="control-row">
- <button onclick="applyTextColor()" class="action-btn btn-text">
- 🖍️ Apply Selected
- </button>
- </div>
- 
- <div class="control-row">
- <button onclick="addExampleTextColors()" class="action-btn btn-example">
- 🎨 Examples
- </button>
- <button onclick="resetAllTextColors()" class="action-btn btn-reset">
- 🔄 Reset All
- </button>
- </div>
- 
- <div class="help-text">
- <strong>How to use:</strong> Highlight text, choose color, then click "Apply Selected"
- </div>
- </div>
- </div>
- 
- <div class="help-text">
- <strong>💡 Tips:</strong><br>
- • Generate calendar first<br>
- • Edit events by clicking text<br>
- • Use commas for multiple dates: "1,5,12"<br>
- • Color text to highlight items
- </div>
- </div>
- 
- <!-- Main Content Area -->
- <div class="main-content">
- <div class="calendar-container">
- <div class="header">
- <div class="logo">
- <img src="https://vric.org/wp-content/uploads/2021/09/VRIC-Color-Circle-Logo.png" alt="VRIC Logo">
- </div>
- <div class="month-title" id="monthTitle">[MONTH YEAR]</div>
- <div class="spacer"></div>
- </div>
- 
- <div class="committee-title">VRIC Women's Committee</div>
- 
- <!-- Responsive Calendar Grid -->
- <table class="calendar-grid">
- <tr>
- <td class="day-header">SUN</td>
- <td class="day-header">MON</td>
- <td class="day-header">TUE</td>
- <td class="day-header">WED</td>
- <td class="day-header">THU</td>
- <td class="day-header">FRI</td>
- <td class="day-header">SAT</td>
- </tr>
- <!-- Week 1 -->
- <tr>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- </tr>
- <!-- Week 2 -->
- <tr>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- </tr>
- <!-- Week 3 -->
- <tr>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- </tr>
- <!-- Week 4 -->
- <tr>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- </tr>
- <!-- Week 5 -->
- <tr>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- </tr>
- <!-- Week 6 -->
- <tr>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- <td class="calendar-cell"><div class="date-number"></div></td>
- </tr>
- </table>
- 
- <div class="content-area">
- <div class="left-column">
- <div class="event-section">
- <div class="event-title" contenteditable="true">Women's Book Club</div>
- <div class="event-details" contenteditable="true">Mondays @ 6:30 p.m.</div>
- <hr class="divider">
- </div>
- <div class="event-section">
- <div class="event-title" contenteditable="true">Guided Arabic Tafseer & Beginners Arabic Grammar</div>
- <div class="event-details" contenteditable="true">Wednesdays @ 9:30 a.m.</div>
- <hr class="divider">
- </div>
- <div class="event-section">
- <div class="event-title" contenteditable="true">Tafseer in Arabic Halaqa</div>
- <div class="event-details" contenteditable="true">Wednesdays @ 10:00 a.m.</div>
- <hr class="divider">
- </div>
- <div class="event-section">
- <div class="event-title" contenteditable="true">Women Wonderful Wednesdays</div>
- <div class="event-details" contenteditable="true">Wednesdays @ 11:00 a.m.</div>
- <hr class="divider">
- </div>
- <div class="event-section">
- <div class="event-title" contenteditable="true">Little M&Ms</div>
- <div class="event-details" contenteditable="true">2nd and 4th Thursdays @ 10:00 a.m.</div>
- <hr class="divider">
- </div>
- <div class="event-section">
- <div class="event-title" contenteditable="true">Tafseer Thursdays</div>
- <div class="event-details" contenteditable="true">Thursdays @ 7:00 p.m.</div>
- <hr class="divider">
- </div>
- <div class="event-section">
- <div class="event-title" contenteditable="true">Sister's Self Defense Fundamentals</div>
- <div class="event-details" contenteditable="true">Saturdays @ 10:00 a.m</div>
- <hr class="divider">
- </div>
- </div>
- 
- <div class="right-column">
- <div class="event-section">
- <div class="event-title" contenteditable="true">Ladies Hike</div>
- <div class="event-details" contenteditable="true">Saturday, 9/6 @ 7:30 a.m.</div>
- </div>
- <div class="event-section">
- <div class="event-title" contenteditable="true">It Takes a Village</div>
- <div class="event-details" contenteditable="true">Saturday, 9/6 @ 10:00 a.m</div>
- </div>
- <div class="event-section">
- <div class="event-title" contenteditable="true">Picnic Under the Stars</div>
- <div class="event-details" contenteditable="true">Sunday, 9/7 @ 7:30 p.m.</div>
- </div>
- <div class="event-section">
- <div class="event-title" contenteditable="true">Coffee and Tatreez Social</div>
- <div class="event-details" contenteditable="true">Friday, 9/20 @ 10:00 a.m.</div>
- </div>
- <div class="event-section">
- <div class="event-title" contenteditable="true">Sister's Game Night</div>
- <div class="event-details" contenteditable="true">Friday, 9/26 @ 7:30 p.m.</div>
- </div>
- <div class="event-section">
- <div class="event-title" contenteditable="true">Shikka Bangla</div>
- <div class="event-details" contenteditable="true">Friday, 9/28 @ 1:00 p.m</div>
- </div>
- <div class="event-section">
- <div class="event-title" contenteditable="true">[Special Event]</div>
- <div class="event-details" contenteditable="true">[Date] @ [Time]</div>
- </div>
- </div>
- </div>
- 
- <div class="events-title">EVENTS</div>
- </div>
- </div>
- </div>
+  <div class="app-container">
+    <!-- Preview Area (Top on mobile, Right on desktop) -->
+    <div class="preview-area">
+      <div class="calendar-container" id="calendarContainer">
+        <div class="header">
+          <div class="logo">
+            <img src="https://vric.org/wp-content/uploads/2021/09/VRIC-Color-Circle-Logo.png" alt="VRIC Logo">
+          </div>
+          <div class="month-title" id="monthTitle">[MONTH YEAR]</div>
+          <div class="spacer"></div>
+        </div>
+        
+        <div class="committee-title">VRIC Women's Committee</div>
+        
+        <table class="calendar-grid">
+          <tr>
+            <td class="day-header">SUN</td>
+            <td class="day-header">MON</td>
+            <td class="day-header">TUE</td>
+            <td class="day-header">WED</td>
+            <td class="day-header">THU</td>
+            <td class="day-header">FRI</td>
+            <td class="day-header">SAT</td>
+          </tr>
+          <!-- 6 weeks of cells -->
+          <tr class="calendar-row"></tr>
+          <tr class="calendar-row"></tr>
+          <tr class="calendar-row"></tr>
+          <tr class="calendar-row"></tr>
+          <tr class="calendar-row"></tr>
+          <tr class="calendar-row"></tr>
+        </table>
+        
+        <div class="content-area">
+          <div class="events-columns">
+            <div class="left-column" id="regularEvents"></div>
+            <div class="right-column" id="specialEvents"></div>
+          </div>
+          <div class="events-label">EVENTS</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Control Panel (Bottom on mobile, Left sidebar on desktop) -->
+    <div class="control-panel">
+      <div class="tab-bar">
+        <button class="tab-btn active" data-tab="calendar">
+          <span class="icon">📅</span>
+          <span>Calendar</span>
+        </button>
+        <button class="tab-btn" data-tab="dots">
+          <span class="icon">🔵</span>
+          <span>Dots</span>
+        </button>
+        <button class="tab-btn" data-tab="events">
+          <span class="icon">✏️</span>
+          <span>Events</span>
+        </button>
+      </div>
+      
+      <!-- Calendar Tab -->
+      <div class="tab-content active" id="tab-calendar">
+        <div class="section-header">
+          <span class="section-title">📅 Calendar Setup</span>
+        </div>
+        
+        <div class="control-row">
+          <select id="monthSelect" class="control-select">
+            <option value="">Month...</option>
+            <option value="1">January</option>
+            <option value="2">February</option>
+            <option value="3">March</option>
+            <option value="4">April</option>
+            <option value="5">May</option>
+            <option value="6">June</option>
+            <option value="7">July</option>
+            <option value="8">August</option>
+            <option value="9">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+          </select>
+          <select id="yearSelect" class="control-select">
+            <option value="">Year...</option>
+            <option value="2025">2025</option>
+            <option value="2026">2026</option>
+            <option value="2027">2027</option>
+            <option value="2028">2028</option>
+            <option value="2029">2029</option>
+          </select>
+        </div>
+        
+        <div class="control-row">
+          <button class="btn btn-primary" onclick="generateCalendar()" style="flex:1;">
+            📅 Generate Calendar
+          </button>
+        </div>
+        
+        <hr style="border:none;border-top:1px solid #eee;margin:1rem 0;">
+        
+        <div class="section-header">
+          <span class="section-title">📤 Export</span>
+        </div>
+        
+        <div class="control-row">
+          <button class="btn btn-success" onclick="exportCalendar()" style="flex:1;">
+            📸 Save Image
+          </button>
+        </div>
+        
+        <p class="help-text">
+          Exports the calendar as a PNG image optimized for Instagram (1080×1350).
+        </p>
+        
+        <hr style="border:none;border-top:1px solid #eee;margin:1rem 0;">
+        
+        <div class="control-row">
+          <button class="btn btn-outline btn-sm" onclick="clearAllData()">
+            🗑️ Clear All Data
+          </button>
+        </div>
+      </div>
+      
+      <!-- Dots Tab -->
+      <div class="tab-content" id="tab-dots">
+        <div class="section-header">
+          <span class="section-title">🎨 Select Color</span>
+        </div>
+        
+        <div class="color-picker" id="dotColorPicker">
+          <div class="color-swatch selected" data-color="dot-red" style="background:var(--dot-red);"></div>
+          <div class="color-swatch" data-color="dot-orange" style="background:var(--dot-orange);"></div>
+          <div class="color-swatch" data-color="dot-yellow" style="background:var(--dot-yellow);"></div>
+          <div class="color-swatch" data-color="dot-green" style="background:var(--dot-green);"></div>
+          <div class="color-swatch" data-color="dot-teal" style="background:var(--dot-teal);"></div>
+          <div class="color-swatch" data-color="dot-blue" style="background:var(--dot-blue);"></div>
+          <div class="color-swatch" data-color="dot-purple" style="background:var(--dot-purple);"></div>
+          <div class="color-swatch" data-color="dot-pink" style="background:var(--dot-pink);"></div>
+          <div class="color-swatch" data-color="dot-brown" style="background:var(--dot-brown);"></div>
+          <div class="color-swatch" data-color="dot-black" style="background:var(--dot-black);"></div>
+          <div class="color-swatch" data-color="dot-gray" style="background:var(--dot-gray);"></div>
+          <div class="color-swatch erase" data-color="erase" title="Erase"></div>
+        </div>
+        
+        <hr style="border:none;border-top:1px solid #eee;margin:1rem 0;">
+        
+        <div class="section-header">
+          <span class="section-title">📆 Apply to Weekday</span>
+        </div>
+        
+        <div class="control-row">
+          <select id="dotDaySelect" class="control-select">
+            <option value="0">Sunday</option>
+            <option value="1">Monday</option>
+            <option value="2">Tuesday</option>
+            <option value="3">Wednesday</option>
+            <option value="4">Thursday</option>
+            <option value="5">Friday</option>
+            <option value="6">Saturday</option>
+          </select>
+          <button class="btn btn-warning" onclick="applyDotsToWeekday()">Apply</button>
+        </div>
+        
+        <hr style="border:none;border-top:1px solid #eee;margin:1rem 0;">
+        
+        <div class="section-header">
+          <span class="section-title">🔢 Apply to Specific Dates</span>
+        </div>
+        
+        <div class="control-row">
+          <input type="text" id="dotDatesInput" class="control-input" placeholder="e.g. 1, 5, 12, 25">
+          <button class="btn btn-warning" onclick="applyDotsToSpecificDates()">Apply</button>
+        </div>
+        
+        <hr style="border:none;border-top:1px solid #eee;margin:1rem 0;">
+        
+        <div class="control-row">
+          <button class="btn btn-danger btn-sm" onclick="eraseAllDots()">
+            🗑️ Erase All Dots
+          </button>
+        </div>
+        
+        <p class="help-text">
+          💡 Each date can have up to 3 dots. Select "Erase" to remove dots.
+        </p>
+      </div>
+      
+      <!-- Events Tab -->
+      <div class="tab-content" id="tab-events">
+        <div class="section-header">
+          <span class="section-title">📋 Regular Events</span>
+          <button class="btn btn-sm btn-outline" onclick="addEvent('regular')">+ Add</button>
+        </div>
+        
+        <div class="event-list" id="regularEventList"></div>
+        
+        <hr style="border:none;border-top:1px solid #eee;margin:1rem 0;">
+        
+        <div class="section-header">
+          <span class="section-title">⭐ Special Events</span>
+          <button class="btn btn-sm btn-outline" onclick="addEvent('special')">+ Add</button>
+        </div>
+        
+        <div class="event-list" id="specialEventList"></div>
+        
+        <p class="help-text">
+          💡 Tap the 🎨 button to change an event's color.
+        </p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Color Modal for Events -->
+  <div class="color-modal" id="colorModal">
+    <div class="color-modal-content">
+      <h3>Choose Text Color</h3>
+      <div class="color-picker" id="eventColorPicker">
+        <div class="color-swatch" data-color="" style="background:#7bb3b3;" title="Default (Teal)"></div>
+        <div class="color-swatch" data-color="text-red" style="background:var(--dot-red);"></div>
+        <div class="color-swatch" data-color="text-orange" style="background:var(--dot-orange);"></div>
+        <div class="color-swatch" data-color="text-yellow" style="background:var(--dot-yellow);"></div>
+        <div class="color-swatch" data-color="text-green" style="background:var(--dot-green);"></div>
+        <div class="color-swatch" data-color="text-teal" style="background:var(--dot-teal);"></div>
+        <div class="color-swatch" data-color="text-blue" style="background:var(--dot-blue);"></div>
+        <div class="color-swatch" data-color="text-purple" style="background:var(--dot-purple);"></div>
+        <div class="color-swatch" data-color="text-pink" style="background:var(--dot-pink);"></div>
+        <div class="color-swatch" data-color="text-brown" style="background:var(--dot-brown);"></div>
+        <div class="color-swatch" data-color="text-black" style="background:var(--dot-black);"></div>
+        <div class="color-swatch" data-color="text-gray" style="background:var(--dot-gray);"></div>
+      </div>
+      <div class="color-modal-actions">
+        <button class="btn btn-outline" onclick="closeColorModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="applyEventColor()">Apply</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+  
+  <script>
+    // ===== STATE MANAGEMENT =====
+    const STATE_KEY = 'vric_calendar_state';
+    
+    let state = {
+      month: null,
+      year: null,
+      firstDay: null,
+      dots: {}, // { "5": ["dot-red", "dot-blue"], "12": ["dot-green"] }
+      regularEvents: [
+        { title: "Women's Book Club", details: "Mondays @ 6:30 p.m.", color: "" },
+        { title: "Guided Arabic Tafseer & Beginners Arabic Grammar", details: "Wednesdays @ 9:30 a.m.", color: "" },
+        { title: "Tafseer in Arabic Halaqa", details: "Wednesdays @ 10:00 a.m.", color: "" },
+        { title: "Women Wonderful Wednesdays", details: "Wednesdays @ 11:00 a.m.", color: "" },
+        { title: "Little M&Ms", details: "2nd and 4th Thursdays @ 10:00 a.m.", color: "" },
+        { title: "Tafseer Thursdays", details: "Thursdays @ 7:00 p.m.", color: "" },
+        { title: "Sister's Self Defense Fundamentals", details: "Saturdays @ 10:00 a.m", color: "" }
+      ],
+      specialEvents: [
+        { title: "Ladies Hike", details: "Saturday, 9/6 @ 7:30 a.m.", color: "" },
+        { title: "It Takes a Village", details: "Saturday, 9/6 @ 10:00 a.m", color: "" },
+        { title: "Picnic Under the Stars", details: "Sunday, 9/7 @ 7:30 p.m.", color: "" },
+        { title: "Coffee and Tatreez Social", details: "Friday, 9/20 @ 10:00 a.m.", color: "" },
+        { title: "Sister's Game Night", details: "Friday, 9/26 @ 7:30 p.m.", color: "" },
+        { title: "Shikka Bangla", details: "Friday, 9/28 @ 1:00 p.m", color: "" }
+      ]
+    };
+    
+    let selectedDotColor = 'dot-red';
+    let currentEditingEvent = null;
+    
+    // ===== INITIALIZATION =====
+    document.addEventListener('DOMContentLoaded', () => {
+      loadState();
+      initCalendarGrid();
+      initTabs();
+      initColorPickers();
+      renderCalendar();
+      renderEvents();
+      renderEventEditors();
+    });
+    
+    function loadState() {
+      try {
+        const saved = localStorage.getItem(STATE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          state = { ...state, ...parsed };
+        }
+      } catch (e) {
+        console.warn('Failed to load state:', e);
+      }
+    }
+    
+    function saveState() {
+      try {
+        localStorage.setItem(STATE_KEY, JSON.stringify(state));
+      } catch (e) {
+        console.warn('Failed to save state:', e);
+      }
+    }
+    
+    // Debounced save
+    let saveTimeout;
+    function debouncedSave() {
+      clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(saveState, 300);
+    }
+    
+    // ===== CALENDAR GRID =====
+    function initCalendarGrid() {
+      const rows = document.querySelectorAll('.calendar-row');
+      rows.forEach(row => {
+        row.innerHTML = '';
+        for (let i = 0; i < 7; i++) {
+          const cell = document.createElement('td');
+          cell.className = 'calendar-cell';
+          cell.innerHTML = '<div class="date-number"></div>';
+          row.appendChild(cell);
+        }
+      });
+    }
+    
+    function generateCalendar() {
+      const month = parseInt(document.getElementById('monthSelect').value);
+      const year = parseInt(document.getElementById('yearSelect').value);
+      
+      if (!month || !year) {
+        showToast('Please select month and year');
+        return;
+      }
+      
+      state.month = month;
+      state.year = year;
+      state.firstDay = new Date(year, month - 1, 1).getDay();
+      state.dots = {}; // Reset dots for new calendar
+      
+      renderCalendar();
+      debouncedSave();
+      showToast('Calendar generated!');
+    }
+    
+    function renderCalendar() {
+      // Update dropdowns
+      if (state.month) document.getElementById('monthSelect').value = state.month;
+      if (state.year) document.getElementById('yearSelect').value = state.year;
+      
+      // Update title
+      const monthNames = ['', 'JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE',
+        'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'];
+      
+      if (state.month && state.year) {
+        document.getElementById('monthTitle').textContent = `${monthNames[state.month]} ${state.year}`;
+      } else {
+        document.getElementById('monthTitle').textContent = '[MONTH YEAR]';
+      }
+      
+      // Clear all cells
+      const cells = document.querySelectorAll('.calendar-cell');
+      cells.forEach(cell => {
+        cell.querySelector('.date-number').textContent = '';
+        cell.querySelectorAll('.dot').forEach(d => d.remove());
+      });
+      
+      if (!state.month || !state.year) return;
+      
+      const daysInMonth = new Date(state.year, state.month, 0).getDate();
+      const firstDay = state.firstDay;
+      
+      // Show/hide rows
+      const rows = document.querySelectorAll('.calendar-row');
+      const weeksNeeded = Math.ceil((firstDay + daysInMonth) / 7);
+      rows.forEach((row, i) => {
+        row.style.display = i < weeksNeeded ? '' : 'none';
+      });
+      
+      // Fill dates
+      let dateNum = 1;
+      for (let i = firstDay; i < firstDay + daysInMonth && i < cells.length; i++) {
+        cells[i].querySelector('.date-number').textContent = dateNum;
+        dateNum++;
+      }
+      
+      // Render dots
+      Object.entries(state.dots).forEach(([date, colors]) => {
+        colors.forEach(color => addDotToCell(parseInt(date), color, false));
+      });
+    }
+    
+    // ===== DOTS =====
+    function initColorPickers() {
+      // Dot color picker
+      document.querySelectorAll('#dotColorPicker .color-swatch').forEach(swatch => {
+        swatch.addEventListener('click', () => {
+          document.querySelectorAll('#dotColorPicker .color-swatch').forEach(s => s.classList.remove('selected'));
+          swatch.classList.add('selected');
+          selectedDotColor = swatch.dataset.color;
+        });
+      });
+      
+      // Event color picker in modal
+      document.querySelectorAll('#eventColorPicker .color-swatch').forEach(swatch => {
+        swatch.addEventListener('click', () => {
+          document.querySelectorAll('#eventColorPicker .color-swatch').forEach(s => s.classList.remove('selected'));
+          swatch.classList.add('selected');
+        });
+      });
+    }
+    
+    function addDotToCell(dateNum, colorClass, save = true) {
+      if (colorClass === 'erase') {
+        // Remove all dots from this date
+        const cell = findCellByDate(dateNum);
+        if (cell) {
+          cell.querySelectorAll('.dot').forEach(d => d.remove());
+        }
+        if (save) {
+          delete state.dots[dateNum];
+          debouncedSave();
+        }
+        return;
+      }
+      
+      const cell = findCellByDate(dateNum);
+      if (!cell) return;
+      
+      // Check existing dots
+      const existingDots = cell.querySelectorAll('.dot');
+      const existingColors = Array.from(existingDots).map(d => 
+        Array.from(d.classList).find(c => c.startsWith('dot-'))
+      );
+      
+      if (existingColors.includes(colorClass)) return; // Already has this color
+      if (existingDots.length >= 3) {
+        showToast(`Date ${dateNum} has max 3 dots`);
+        return;
+      }
+      
+      // Add dot
+      const dot = document.createElement('div');
+      dot.className = `dot ${colorClass}`;
+      cell.appendChild(dot);
+      repositionDots(cell);
+      
+      if (save) {
+        if (!state.dots[dateNum]) state.dots[dateNum] = [];
+        if (!state.dots[dateNum].includes(colorClass)) {
+          state.dots[dateNum].push(colorClass);
+        }
+        debouncedSave();
+      }
+    }
+    
+    function findCellByDate(dateNum) {
+      const cells = document.querySelectorAll('.calendar-cell');
+      for (const cell of cells) {
+        if (cell.querySelector('.date-number').textContent == dateNum) {
+          return cell;
+        }
+      }
+      return null;
+    }
+    
+    function repositionDots(cell) {
+      const dots = cell.querySelectorAll('.dot');
+      dots.forEach(dot => {
+        dot.classList.remove('position-1', 'position-2-first', 'position-2-second',
+          'position-3-first', 'position-3-second', 'position-3-third');
+      });
+      
+      if (dots.length === 1) {
+        dots[0].classList.add('position-1');
+      } else if (dots.length === 2) {
+        dots[0].classList.add('position-2-first');
+        dots[1].classList.add('position-2-second');
+      } else if (dots.length === 3) {
+        dots[0].classList.add('position-3-first');
+        dots[1].classList.add('position-3-second');
+        dots[2].classList.add('position-3-third');
+      }
+    }
+    
+    function applyDotsToWeekday() {
+      if (state.firstDay === null) {
+        showToast('Generate calendar first');
+        return;
+      }
+      
+      const targetDay = parseInt(document.getElementById('dotDaySelect').value);
+      const daysInMonth = new Date(state.year, state.month, 0).getDate();
+      
+      for (let date = 1; date <= daysInMonth; date++) {
+        const dayOfWeek = (state.firstDay + date - 1) % 7;
+        if (dayOfWeek === targetDay) {
+          addDotToCell(date, selectedDotColor);
+        }
+      }
+    }
+    
+    function applyDotsToSpecificDates() {
+      const input = document.getElementById('dotDatesInput').value.trim();
+      if (!input) {
+        showToast('Enter date numbers');
+        return;
+      }
+      
+      const dates = input.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n) && n >= 1 && n <= 31);
+      dates.forEach(date => addDotToCell(date, selectedDotColor));
+      document.getElementById('dotDatesInput').value = '';
+    }
+    
+    function eraseAllDots() {
+      if (!confirm('Erase all dots?')) return;
+      
+      document.querySelectorAll('.calendar-cell .dot').forEach(d => d.remove());
+      state.dots = {};
+      debouncedSave();
+      showToast('All dots erased');
+    }
+    
+    // ===== EVENTS =====
+    function renderEvents() {
+      const regularContainer = document.getElementById('regularEvents');
+      const specialContainer = document.getElementById('specialEvents');
+      
+      regularContainer.innerHTML = state.regularEvents.map((e, i) => `
+        <div class="event-section">
+          <div class="event-title ${e.color}">${escapeHtml(e.title)}</div>
+          <div class="event-details">${escapeHtml(e.details)}</div>
+          ${i < state.regularEvents.length - 1 ? '<hr class="divider">' : ''}
+        </div>
+      `).join('');
+      
+      specialContainer.innerHTML = state.specialEvents.map((e, i) => `
+        <div class="event-section">
+          <div class="event-title ${e.color}">${escapeHtml(e.title)}</div>
+          <div class="event-details">${escapeHtml(e.details)}</div>
+        </div>
+      `).join('');
+    }
+    
+    function renderEventEditors() {
+      const regularList = document.getElementById('regularEventList');
+      const specialList = document.getElementById('specialEventList');
+      
+      regularList.innerHTML = state.regularEvents.map((e, i) => createEventEditorHtml('regular', i, e)).join('');
+      specialList.innerHTML = state.specialEvents.map((e, i) => createEventEditorHtml('special', i, e)).join('');
+      
+      // Add input listeners
+      document.querySelectorAll('.event-editor-item input').forEach(input => {
+        input.addEventListener('input', handleEventInput);
+        input.addEventListener('blur', handleEventInput);
+      });
+    }
+    
+    function createEventEditorHtml(type, index, event) {
+      const colorStyle = event.color ? `background: var(--${event.color.replace('text-', 'dot-')});` : '';
+      return `
+        <div class="event-editor-item ${type === 'special' ? 'special' : ''}">
+          <input type="text" value="${escapeHtml(event.title)}" placeholder="Event title" 
+                 data-type="${type}" data-index="${index}" data-field="title">
+          <div class="event-editor-row">
+            <input type="text" value="${escapeHtml(event.details)}" placeholder="Date & time"
+                   data-type="${type}" data-index="${index}" data-field="details">
+            <button class="event-color-btn" style="${colorStyle}" 
+                    onclick="openColorModal('${type}', ${index})"></button>
+            <button class="event-delete-btn" onclick="deleteEvent('${type}', ${index})">×</button>
+          </div>
+        </div>
+      `;
+    }
+    
+    function handleEventInput(e) {
+      const { type, index, field } = e.target.dataset;
+      const events = type === 'regular' ? state.regularEvents : state.specialEvents;
+      events[parseInt(index)][field] = e.target.value;
+      renderEvents();
+      debouncedSave();
+    }
+    
+    function addEvent(type) {
+      const events = type === 'regular' ? state.regularEvents : state.specialEvents;
+      events.push({ title: 'New Event', details: 'Date @ Time', color: '' });
+      renderEvents();
+      renderEventEditors();
+      debouncedSave();
+    }
+    
+    function deleteEvent(type, index) {
+      const events = type === 'regular' ? state.regularEvents : state.specialEvents;
+      if (events.length <= 1) {
+        showToast('Keep at least one event');
+        return;
+      }
+      events.splice(index, 1);
+      renderEvents();
+      renderEventEditors();
+      debouncedSave();
+    }
+    
+    // ===== COLOR MODAL =====
+    function openColorModal(type, index) {
+      currentEditingEvent = { type, index };
+      const events = type === 'regular' ? state.regularEvents : state.specialEvents;
+      const currentColor = events[index].color;
+      
+      // Select current color
+      document.querySelectorAll('#eventColorPicker .color-swatch').forEach(s => {
+        s.classList.toggle('selected', s.dataset.color === currentColor);
+      });
+      
+      document.getElementById('colorModal').classList.add('show');
+    }
+    
+    function closeColorModal() {
+      document.getElementById('colorModal').classList.remove('show');
+      currentEditingEvent = null;
+    }
+    
+    function applyEventColor() {
+      if (!currentEditingEvent) return;
+      
+      const selected = document.querySelector('#eventColorPicker .color-swatch.selected');
+      const color = selected ? selected.dataset.color : '';
+      
+      const { type, index } = currentEditingEvent;
+      const events = type === 'regular' ? state.regularEvents : state.specialEvents;
+      events[index].color = color;
+      
+      renderEvents();
+      renderEventEditors();
+      debouncedSave();
+      closeColorModal();
+    }
+    
+    // ===== TABS =====
+    function initTabs() {
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const tabId = btn.dataset.tab;
+          
+          document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+          
+          btn.classList.add('active');
+          document.getElementById(`tab-${tabId}`).classList.add('active');
+        });
+      });
+    }
+    
+    // ===== EXPORT =====
+    async function exportCalendar() {
+      const container = document.getElementById('calendarContainer');
+      const btn = event.target;
+      const originalText = btn.innerHTML;
+      
+      try {
+        btn.innerHTML = '⏳ Generating...';
+        btn.disabled = true;
+        
+        const canvas = await html2canvas(container, {
+          width: 1080,
+          height: 1350,
+          scale: 2,
+          backgroundColor: '#f4f3ee',
+          useCORS: true,
+          allowTaint: true
+        });
+        
+        const link = document.createElement('a');
+        const monthTitle = document.getElementById('monthTitle').textContent.replace(/\s+/g, '-');
+        link.download = `VRIC-Calendar-${monthTitle}.png`;
+        link.href = canvas.toDataURL('image/png', 0.95);
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        showToast('Image saved!');
+      } catch (err) {
+        console.error('Export failed:', err);
+        showToast('Export failed. Try again.');
+      } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }
+    }
+    
+    // ===== UTILITIES =====
+    function clearAllData() {
+      if (!confirm('Clear all calendar data? This cannot be undone.')) return;
+      
+      localStorage.removeItem(STATE_KEY);
+      location.reload();
+    }
+    
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+    
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+    
+    // Close modal on outside click
+    document.getElementById('colorModal').addEventListener('click', (e) => {
+      if (e.target.id === 'colorModal') closeColorModal();
+    });
+  </script>
 </body>
 </html>
